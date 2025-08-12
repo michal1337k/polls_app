@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Polls!{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Creating Poll</h1>
+
+    {{ form_start(pollForm) }}
+        <div class="form-group mb-3">
+            {{ form_row(pollForm.question) }}
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="optionCount">Ilość opcji:</label>
+            <select id="optionCount" class="form-select">
+                {% for i in 1..10 %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="optionsContainer" class="mb-3">
+            <!-- Tutaj pojawią się pola opcji -->
+        </div>
+
+        {{ form_row(pollForm.submit) }}
+    {{ form_end(pollForm) }}
+
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger mt-3">
+            {{ msg }}
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('optionCount');
+    const container = document.getElementById('optionsContainer');
+
+    function generateFields(count) {
+        container.innerHTML = '';
+        for (let i = 1; i <= count; i++) {
+            const div = document.createElement('div');
+            div.classList.add('mb-2');
+            div.innerHTML = `
+                <label for="option_${i}">Opcja ${i}:</label>
+                <input type="text" id="option_${i}" name="options[]" class="form-control" required>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    select.addEventListener('change', function () {
+        generateFields(this.value);
+    });
+
+    // Domyślnie 1 opcja
+    generateFields(select.value);
+});
+</script>
+{% endblock %}
