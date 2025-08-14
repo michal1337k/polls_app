@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ankieta - {{ poll.question }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+    <h2>{{ poll.question }}</h2>
+
+    {# Komunikaty flash #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} mt-3">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <hr>
+
+    {# Wykres wyników #}
+    <canvas id="resultsChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('resultsChart').getContext('2d');
+        const resultsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ labels|json_encode|raw }},
+                datasets: [{
+                    label: 'Liczba głosów',
+                    data: {{ data|json_encode|raw }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true, precision: 0 }
+                }
+            }
+        });
+    </script>
+
+    <hr>
+
+    {# Formularz głosowania #}
+    {% if canVote %}
+        <form action="{{ path('app_poll_vote', {id: poll.id}) }}" method="POST">
+            <input type="hidden" name="_token" value="{{ csrf_token('vote' ~ poll.id) }}">
+            <div class="mb-3">
+                {% for option in poll.options %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="option" value="{{ option.id }}" id="option{{ option.id }}" required>
+                        <label class="form-check-label" for="option{{ option.id }}">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Zagłosuj</button>
+        </form>
+    {% else %}
+        <p class="mt-3 text-muted">Już dziś głosowałeś lub ankieta jest zamknięta.</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ path('app_poll_list') }}" class="btn btn-secondary">← Powrót do listy ankiet</a>
+    </div>
+</div>
+{% endblock %}

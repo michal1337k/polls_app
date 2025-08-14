@@ -15,11 +15,11 @@ class PollFormType extends AbstractType
     {
         $builder
             ->add('question', TextType::class, [
-                'label' => 'Pytanie'
+                'label' => 'Pytanie: '
             ])
             //->add('options', PollOptionFormType::class)
             ->add('submit', SubmitType::class,[
-                'label' => 'Zapisz ankietę'
+                'label' => 'Dodaj ankietę'
             ])
         ;
     }
